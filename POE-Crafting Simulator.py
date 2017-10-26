@@ -131,10 +131,15 @@ def use_alteration(item):
 
 wep_1 = one_handed_sword(one_handed_sword_type.tiger_hook)
 weapon_list = []
-for i in range(5):
-    use_alteration(wep_1)
+for i in range(100):
     print(wep_1)
-    weapon_list.append(wep_1)
+    use_alteration(wep_1)
+    if wep_1.prefix_name == '(T12) Beryl':
+        weapon_list.append(wep_1)
+        wep_1 = one_handed_sword(one_handed_sword_type.tiger_hook)
 
 print(weapon_list)
+
+for i in range(len(weapon_list)):
+    print("Weapon: {}'s alt count: {}".format(weapon_list[i], weapon_list[i].alt_count))
 
