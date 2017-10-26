@@ -1,9 +1,12 @@
 import random
 from enum import Enum
+from modList import prefix_list
+
 
 class one_handed_sword_type(Enum):
     tiger_hook = 1
     midnight_blade = 2
+
 
 class weapon():
     def __init__(self):
@@ -20,6 +23,7 @@ class weapon():
         self.max_dmg = 0
         self.item_level = 0
         self.crit_chance = 0.0
+
         # Tracking currency used on the item
         self.alt_count = 0
         self.aug_count = 0
@@ -38,11 +42,25 @@ class weapon():
         else:
             return "{}".format(self.base_name)
 
+    def __repr__(self):
+        return str(self)
 
     @property
     def weapon_dps(self):
         return (self.min_dmg + self.max_dmg) / 2 * self.attack_speed
 
+    @property
+    def mod_list(self, mod):
+        mod_list = [mod]
+        return mod_list
+
+    def clear_mods(self):
+        self.prefix_name = ''
+        self.suffix_name = ''
+        self.prefix_mods = 0
+        self.suffix_mods = 0
+        self.alt_count = 0
+        self.aug_count = 0
 
     def incr_alt_count_by(self, increment):
         self.alt_count += increment
@@ -50,11 +68,11 @@ class weapon():
     def incr_aug_count_by(self, increment):
         self.aug_count += increment
 
+
 class one_handed_sword(weapon):
     def __init__(self, type):
         super().__init__()
         self.set_type(type)
-
 
     def set_type(self, type):
         if type == one_handed_sword_type.tiger_hook:
@@ -72,44 +90,51 @@ class one_handed_sword(weapon):
             self.base_name = 'Midnight Blade'
 
 
+def assign_prefix(item):
+    #print("assign_prefix Item: {}".format(item))
+    #print("Prefix: {} Suffix: {}".format(item.prefix_mods, item.suffix_mods))
+    if item.prefix_mods == 1:
+        random_float = (random.random()) * 100
+        #print(random_float)
+        item.prefix_name = prefix_list(random_float)
+        #print("Prefix name: {}".format(item.prefix_name))
+        return item
+
+    elif item.prefix_mods == 2:
+        pass
+    elif item.prefix_mods == 3:
+        pass
+    else:
+        return item
 
 
+def use_alteration(item):
+    #print("Item coming into function {}".format(item))
 
+    random_number = random.randrange(0, 100)
+    item.incr_alt_count_by(1)
+    # Check if both prefix and suffix are rolled (40% chance)
+    if random_number <= 39:
+        item.prefix_mods = 1
+        item.suffix_mods = 1
+    # Check if prefix is rolled (30% chance)
+    if 40 <= random_number <= 70 and item.prefix_mods == 0:
+        item.prefix_mods = 1
+    # Check if suffix is rolled (30% chance)
+    elif 71 <= random_number <= 100 and item.suffix_mods == 0:
+        item.suffix_mods = 1
+        if item.prefix_mods == 0:
+            item.incr_aug_count_by(1)
+            item.prefix_mods = 1
 
+    return assign_prefix(item)
 
 wep_1 = one_handed_sword(one_handed_sword_type.tiger_hook)
+weapon_list = []
+for i in range(5):
+    use_alteration(wep_1)
+    print(wep_1)
+    weapon_list.append(wep_1)
 
-def use_alteration(count, weapon):
-    weapon_list = []
-    for i in range(count):
-        random_number = random.randrange(0, 100)
-        weapon.prefix_mods = 0
-        weapon.suffix_mods = 0
-        weapon.incr_alt_count_by(1)
-        # Check if both prefix and suffix are rolled (50% chance)
-        if random_number <= 49:
-            weapon.prefix_mods = 1
-            weapon.suffix_mods = 1
-        # Check if prefix is rolled (25% chance)
-        if random_number <= 24 and weapon.prefix_mods == 0:
-            weapon.prefix_mods = 1
-        # Check if suffix is rolled (25% chance)
-        elif random_number >= 75 and weapon.suffix_mods == 0:
-            weapon.suffix_mods = 1
-            if weapon.prefix_mods == 0:
-                weapon.incr_aug_count_by(1)
-                weapon.prefix_mods = 1
-        random_float = (random.random()) * 100
-        if random_float <= 0.04 and weapon.prefix_mods == 1:
-            weapon.prefix_name = 'Merciless'
-            finished_weapon = weapon
-            weapon_list.append(finished_weapon)
+print(weapon_list)
 
-    return weapon_list
-
-t1_phys_wep_list = use_alteration(2500, wep_1)
-
-
-for i in range(len(t1_phys_wep_list)):
-    print(t1_phys_wep_list[i].alt_count)
-    print(t1_phys_wep_list[i].aug_count)
